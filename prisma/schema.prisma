@@ -10,11 +10,42 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model Librairy {
+    id                    Int             @id @default(autoincrement())
+    qrCode                String
+    name                  String
+    address               String
+    picture               String
+    geographicCoordinates String
+    createdAt             DateTime        @default(now())
+    Book                  Book[]
+    TravelSegment         TravelSegment[]
 
     @@index([name])
+}
+
+model Book {
+    id                Int             @id @default(autoincrement())
+    qrCode            String
+    title             String
+    author            String
+    cover             String
+    Resume            String          @db.Char(800)
+    createdAt         DateTime        @default(now())
+    currentLibrairy   Librairy        @relation(fields: [currentLibrairyId], references: [id])
+    currentLibrairyId Int
+    steps             TravelSegment[]
+
+    @@index([title])
+}
+
+model TravelSegment {
+    id         Int      @id @default(autoincrement())
+    book       Book     @relation(fields: [bookId], references: [id])
+    bookId     Int
+    librairy   Librairy @relation(fields: [librairyId], references: [id])
+    librairyId Int
+    createdAt  DateTime @default(now())
+    reader     String
+    details    String
 }
