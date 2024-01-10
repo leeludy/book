@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { CreatePost } from "~/app/_components/create-post";
+import { CreateBook } from "~/app/_components/create-book";
 import { api } from "~/trpc/server";
 
 export default async function Home() {
@@ -49,17 +49,17 @@ export default async function Home() {
 }
 
 async function CrudShowcase() {
-  const latestPost = await api.post.getLatest.query();
+  const latestBook = await api.post.getLatest.query();
 
   return (
     <div className="w-full max-w-xs">
-      {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
+      {latestBook ? (
+        <p className="truncate">Your most recent post: {latestBook.name}</p>
       ) : (
         <p>You have no posts yet.</p>
       )}
 
-      <CreatePost />
+      <CreateBook />
     </div>
   );
 }
