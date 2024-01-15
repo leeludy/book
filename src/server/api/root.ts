@@ -1,6 +1,7 @@
 import { bookRouter } from "~/server/api/routers/book";
 import { postRouter } from "~/server/api/routers/expl";
 import { createTRPCRouter } from "~/server/api/trpc";
+import { librairyRouter } from "./routers/librairy";
 
 /**
  * This is the primary router for your server.
@@ -9,6 +10,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   book: bookRouter,
+  librairy: librairyRouter,
   post: postRouter,
 });
 

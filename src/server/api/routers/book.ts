@@ -12,14 +12,25 @@ export const bookRouter = createTRPCRouter({
     }),
 
   create: publicProcedure
-    .input(z.object({ name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+    .input(
+      z.object({
+        title: z.string().min(1),
+        author: z.string().min(1),
+        resume: z.string().max(1200),
+        cover: z.string().url(),
+        qrCode: z.string(),
+        currentLibrairyId: z.number(),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
       return ctx.db.book.create({
         data: {
-          title: input.name,
+          author: input.author,
+          title: input.title,
+          Resume: input.resume,
+          cover: input.cover,
+          qrCode: input.qrCode,
+          currentLibrairyId: input.currentLibrairyId,
         },
       });
     }),

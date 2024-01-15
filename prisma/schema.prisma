@@ -30,7 +30,7 @@ model Book {
     title             String
     author            String
     cover             String
-    Resume            String          @db.Char(800)
+    resume            String          @db.Char(800)
     createdAt         DateTime        @default(now())
     currentLibrairy   Librairy        @relation(fields: [currentLibrairyId], references: [id])
     currentLibrairyId Int
