@@ -1,7 +1,14 @@
 "use client";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter } from "next/navigation";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 
 import { api } from "~/trpc/react";
 
@@ -9,23 +16,48 @@ type Inputs = {
   title: string;
   author: string;
   resume: string;
-  cover: string;
+  cover?: string;
   qrCode: string;
   currentLibrairyId: number;
 };
 
+const defaultValues = {
+  title: "",
+  author: "",
+  resume: "",
+  cover: "",
+  qrCode: "",
+  currentLibrairyId: 1,
+};
+
 export function CreateBook() {
   const router = useRouter();
+  const librairiesList = api.librairy.getAll.useInfiniteQuery(
+    {
+      limit: 10,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      // initialCursor: 1, // <-- optional you can pass an initialCursor
+    },
+  );
 
   const {
-    register,
-    handleSubmit,
+    control,
     watch,
+    handleSubmit,
     formState: { errors },
+    setValue,
+    register,
     reset,
-  } = useForm<Inputs>();
+  } = useForm<Inputs>({
+    defaultValues,
+  });
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => createBook.mutate(data);
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    setValue("currentLibrairyId", Number(data.currentLibrairyId));
+    return createBook.mutate(data);
+  };
 
   console.log(watch("title")); // watch input value by passing the name of it
 
@@ -38,11 +70,29 @@ export function CreateBook() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-      <input
-        placeholder="Boite à livre de dépot"
-        {...register("currentLibrairyId", { required: true })}
-        className="w-full rounded-full px-4 py-2 text-black"
+      <Controller
+        render={({ field }) => (
+          <Select
+            onValueChange={field.onChange}
+            defaultValue={`${field.value}`}
+          >
+            <SelectTrigger className="w-full rounded-full bg-white px-4 py-2 text-black">
+              <SelectValue placeholder="Boite à livre choisie" />
+            </SelectTrigger>
+            <SelectContent>
+              {librairiesList.data?.pages[0]?.items.map((librairy) => (
+                <SelectItem key={librairy.id} value={`${librairy.id}`}>
+                  {librairy.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        control={control}
+        name="currentLibrairyId"
+        // defaultValue={1}
       />
+
       <input
         placeholder="Titre"
         {...register("title", { required: true })}

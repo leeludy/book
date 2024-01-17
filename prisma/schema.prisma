@@ -29,7 +29,7 @@ model Book {
     qrCode            String
     title             String
     author            String
-    cover             String
+    cover             String?
     resume            String          @db.Char(800)
     createdAt         DateTime        @default(now())
     currentLibrairy   Librairy        @relation(fields: [currentLibrairyId], references: [id])
