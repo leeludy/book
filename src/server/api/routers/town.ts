@@ -2,33 +2,20 @@ import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
-export const librairyRouter = createTRPCRouter({
+export const townRouter = createTRPCRouter({
   create: publicProcedure
     .input(
       z.object({
         name: z.string(),
-        adress: z.string(),
-        geographicCoordinates: z.string(),
-        picture: z.string(),
-        qrCode: z.string(),
-        townId: z.number(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      return ctx.db.librairy.create({
+    .mutation(({ ctx, input }) =>
+      ctx.db.town.create({
         data: {
-          address: input.adress,
-          geographicCoordinates: input.geographicCoordinates,
           name: input.name,
-          picture: input.picture,
-          qrCode: input.qrCode,
-          townId: input.townId,
         },
-      });
-    }),
+      }),
+    ),
 
   getAll: publicProcedure
     .input(
@@ -40,7 +27,7 @@ export const librairyRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 50;
       const { cursor } = input;
-      const items = await ctx.db.librairy.findMany({
+      const items = await ctx.db.town.findMany({
         take: limit + 1, // get an extra item at the end which we'll use as next cursor
         cursor: cursor ? { id: cursor } : undefined,
         orderBy: {
@@ -56,20 +43,5 @@ export const librairyRouter = createTRPCRouter({
         items,
         nextCursor,
       };
-    }),
-
-  getLibrariesByTown: publicProcedure
-    .input(
-      z.object({
-        townId: z.number(),
-      }),
-    )
-    .query(({ ctx, input }) => {
-      return ctx.db.librairy.findMany({
-        where: { townId: input.townId },
-        orderBy: {
-          name: "asc",
-        },
-      });
     }),
 });

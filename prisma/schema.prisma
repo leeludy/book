@@ -10,6 +10,12 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model Town {
+    id         Int        @id @default(autoincrement())
+    name       String
+    Librairies Librairy[]
+}
+
 model Librairy {
     id                    Int             @id @default(autoincrement())
     qrCode                String
@@ -20,6 +26,8 @@ model Librairy {
     createdAt             DateTime        @default(now())
     Book                  Book[]
     TravelSegment         TravelSegment[]
+    town                  Town            @relation(fields: [townId], references: [id])
+    townId                Int
 
     @@index([name])
 }

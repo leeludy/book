@@ -16,9 +16,10 @@ type Inputs = {
   title: string;
   author: string;
   resume: string;
-  cover?: string;
+  cover?: string | null | undefined;
   qrCode: string;
   currentLibrairyId: number;
+  townId: number | null;
 };
 
 const defaultValues = {
@@ -28,11 +29,12 @@ const defaultValues = {
   cover: "",
   qrCode: "",
   currentLibrairyId: 1,
+  townId: null,
 };
 
 export function CreateBook() {
   const router = useRouter();
-  const librairiesList = api.librairy.getAll.useInfiniteQuery(
+  const townsList = api.town.getAll.useInfiniteQuery(
     {
       limit: 10,
     },
@@ -47,19 +49,27 @@ export function CreateBook() {
     watch,
     handleSubmit,
     formState: { errors },
-    setValue,
     register,
     reset,
   } = useForm<Inputs>({
     defaultValues,
   });
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    setValue("currentLibrairyId", Number(data.currentLibrairyId));
-    return createBook.mutate(data);
-  };
+  const selectedTownLibrairies = api.librairy.getLibrariesByTown.useQuery({
+    townId: Number(watch("townId")),
+  });
 
-  console.log(watch("title")); // watch input value by passing the name of it
+  const onSubmit: SubmitHandler<Inputs> = ({
+    townId,
+    currentLibrairyId,
+    ...data
+  }) => {
+    currentLibrairyId = Number(currentLibrairyId);
+
+    console.log("form data", data);
+
+    return createBook.mutate({ currentLibrairyId, ...data });
+  };
 
   const createBook = api.book.create.useMutation({
     onSuccess: () => {
@@ -76,12 +86,42 @@ export function CreateBook() {
             onValueChange={field.onChange}
             defaultValue={`${field.value}`}
           >
-            <SelectTrigger className="w-full rounded-full bg-white px-4 py-2 text-black">
+            <SelectTrigger className="w-full  justify-between rounded-full bg-white px-4 py-2 align-middle text-black">
+              <SelectValue placeholder="Ville" />
+            </SelectTrigger>
+            <SelectContent className=" w-full p-1">
+              {townsList.data?.pages[0]?.items.map((town) => (
+                <SelectItem
+                  key={town.id}
+                  value={`${town.id}`}
+                  className="px-2 py-1"
+                >
+                  {town.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        control={control}
+        name="townId"
+      />
+
+      <Controller
+        render={({ field }) => (
+          <Select
+            onValueChange={field.onChange} //(e) => field.onChange(parseInt(e.target.value))
+            defaultValue={`${field.value}`}
+          >
+            <SelectTrigger className="w-full  justify-between rounded-full bg-white px-4 py-2 align-middle text-black">
               <SelectValue placeholder="Boite à livre choisie" />
             </SelectTrigger>
-            <SelectContent>
-              {librairiesList.data?.pages[0]?.items.map((librairy) => (
-                <SelectItem key={librairy.id} value={`${librairy.id}`}>
+            <SelectContent className=" w-full p-1">
+              {selectedTownLibrairies.data?.map((librairy) => (
+                <SelectItem
+                  key={librairy.id}
+                  value={`${librairy.id}`}
+                  className="px-2 py-1"
+                >
                   {librairy.name}
                 </SelectItem>
               ))}
@@ -90,7 +130,7 @@ export function CreateBook() {
         )}
         control={control}
         name="currentLibrairyId"
-        // defaultValue={1}
+        disabled={watch("townId") === null}
       />
 
       <input

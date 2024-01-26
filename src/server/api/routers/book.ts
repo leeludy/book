@@ -17,7 +17,7 @@ export const bookRouter = createTRPCRouter({
         title: z.string().min(1),
         author: z.string().min(1),
         resume: z.string().max(1200),
-        cover: z.string().url().optional(),
+        cover: z.string().nullish(),
         qrCode: z.string(),
         currentLibrairyId: z.number(),
       }),
