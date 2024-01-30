@@ -7,7 +7,7 @@ export const librairyRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        adress: z.string(),
+        address: z.string(),
         geographicCoordinates: z.string(),
         picture: z.string(),
         qrCode: z.string(),
@@ -20,7 +20,7 @@ export const librairyRouter = createTRPCRouter({
 
       return ctx.db.librairy.create({
         data: {
-          address: input.adress,
+          address: input.address,
           geographicCoordinates: input.geographicCoordinates,
           name: input.name,
           picture: input.picture,
