@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { CreateBook } from "~/app/_components/create-book";
 import { api } from "~/trpc/server";
+import { Createlibrairy } from "./_components/create-librairy";
 
 export default async function Home() {
   const hello = await api.post.hello.query({ text: "from somewhere" });
@@ -62,7 +63,7 @@ async function CrudShowcase() {
         <p>You have no posts yet.</p>
       )}
 
-      <CreateBook />
+      <Createlibrairy />
     </div>
   );
 }

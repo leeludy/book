@@ -1,5 +1,6 @@
 "use client";
 
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -8,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 
 import { api } from "~/trpc/react";
@@ -21,6 +23,8 @@ type Inputs = {
   townId: number | null;
 };
 
+type FieldNames = keyof Inputs;
+
 const defaultValues = {
   qrCode: "",
   name: "",
@@ -30,8 +34,30 @@ const defaultValues = {
   townId: null,
 };
 
+const steps = [
+  {
+    id: "Etape 1",
+    name: "Nom",
+    fields: ["name", "picture"],
+  },
+  {
+    id: "Etape 2",
+    name: "Ville",
+    fields: ["townId"],
+  },
+  {
+    id: "Etape 3",
+    name: "Adresse",
+    fields: ["address", "geographicCoordinates"],
+  },
+  { id: "Etape 5", name: "Validation" },
+  { id: "Etape 6", name: "QR Code" },
+];
+
 export function Createlibrairy() {
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(0);
+
   const townsList = api.town.getAll.useInfiniteQuery(
     {
       limit: 10,
@@ -42,10 +68,19 @@ export function Createlibrairy() {
     },
   );
 
+  const createLibrairy = api.librairy.create.useMutation({
+    onSuccess: async () => {
+      await next();
+      router.refresh();
+      reset();
+    },
+  });
+
   const {
     control,
     handleSubmit,
     formState: { errors },
+    trigger,
     register,
     reset,
   } = useForm<Inputs>({
@@ -60,75 +95,227 @@ export function Createlibrairy() {
     return createLibrairy.mutate({ townId, ...data });
   };
 
-  const createLibrairy = api.librairy.create.useMutation({
-    onSuccess: () => {
-      router.refresh();
-      reset();
-    },
-  });
+  const next = async () => {
+    const fields = steps[currentStep]?.fields;
+    const output = await trigger(fields as FieldNames[], { shouldFocus: true });
+
+    if (!output) return;
+
+    if (currentStep < steps.length - 1) {
+      setCurrentStep((step) => step + 1);
+    }
+  };
+  const prev = () => {
+    if (currentStep > 0) {
+      setCurrentStep((step) => step - 1);
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-      <Controller
-        render={({ field }) => (
-          <Select
-            onValueChange={field.onChange}
-            defaultValue={`${field.value}`}
-          >
-            <SelectTrigger className="w-full  justify-between rounded-full bg-white px-4 py-2 align-middle text-black">
-              <SelectValue placeholder="Ville" />
-            </SelectTrigger>
-            <SelectContent className=" w-full p-1">
-              {townsList.data?.pages[0]?.items.map((town) => (
-                <SelectItem
-                  key={town.id}
-                  value={`${town.id}`}
-                  className="px-2 py-1"
+    <section className="mt-3 flex flex-col justify-between">
+      {/* steps */}
+      <nav aria-label="Progress">
+        <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
+          {steps.map((step, index) => (
+            <li key={step.name} className="md:flex-1">
+              {currentStep > index ? (
+                <div className="group flex w-full flex-col border-l-4 border-[#cc66ff] py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
+                  <span className="text-sm font-medium text-[#cc66ff] transition-colors ">
+                    {step.id}
+                  </span>
+                  <span className="text-sm font-medium">{step.name}</span>
+                </div>
+              ) : currentStep === index ? (
+                <div
+                  className="flex w-full flex-col border-l-4 border-[#cc66ff] py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
+                  aria-current="step"
                 >
-                  {town.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-        control={control}
-        name="townId"
-      />
+                  <span className="text-sm font-medium text-[#cc66ff]">
+                    {step.id}
+                  </span>
+                  <span className="text-sm font-medium">{step.name}</span>
+                </div>
+              ) : (
+                <div className="group flex w-full flex-col border-l-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
+                  <span className="text-sm font-medium text-gray-500 transition-colors">
+                    {step.id}
+                  </span>
+                  <span className="text-sm font-medium">{step.name}</span>
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
 
-      <input
-        placeholder="Nom"
-        {...register("name", { required: true })}
-        className="w-full rounded-full px-4 py-2 text-black"
-      />
-      {errors.name && <span>Renseignez le nom de la boite à livres</span>}
-      <input
-        placeholder="Adresse"
-        {...register("address", { required: true })}
-        className="w-full rounded-full px-4 py-2 text-black"
-      />
-      {errors.address && <span>Renseignez l adresse de la boite à livres</span>}
-      <input
-        placeholder="Emplacement exact"
-        {...register("geographicCoordinates", { required: true })}
-        className="w-full rounded-full px-4 py-2 text-black"
-      />
-      {errors.geographicCoordinates && (
-        <span>Renseignez les coordonnées de la boite à livres</span>
-      )}
-      <input
-        placeholder="Photo"
-        {...register("picture")}
-        className="w-full rounded-full px-4 py-2 text-black"
-      />
-      <input hidden {...register("qrCode")} />
-
-      <button
-        type="submit"
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-        disabled={createLibrairy.isLoading}
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="mt-12 flex flex-col gap-2"
       >
-        {createLibrairy.isLoading ? "Enregistrement..." : "Enregistrer"}
-      </button>
-    </form>
+        {currentStep === 0 && (
+          <>
+            <input
+              placeholder="Nom"
+              {...register("name", { required: true })}
+              className="w-full rounded-full px-4 py-2 text-black"
+            />
+            {errors.name && (
+              <span className="text-sm font-bold text-[#cc66ff]">
+                Entrez un nom pour la boite à livres
+              </span>
+            )}
+            <Label htmlFor="picture">Voulez vous ajouter une photo ?</Label>
+            <input
+              id="picture"
+              placeholder="Photo"
+              {...register("picture")}
+              className="w-full rounded-full px-4 py-2 text-black"
+            />
+          </>
+        )}
+
+        {currentStep === 1 && (
+          <>
+            <Controller
+              render={({ field }) => (
+                <>
+                  <Label htmlFor="townId">
+                    Dans quelle ville se touve la boite à livre ?
+                  </Label>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={`${field.value}`}
+                  >
+                    <SelectTrigger className="w-full  justify-between rounded-full bg-white px-4 py-2 align-middle text-black">
+                      <SelectValue placeholder="Ville" />
+                    </SelectTrigger>
+                    <SelectContent className=" w-full p-1">
+                      {townsList.data?.pages[0]?.items.map((town) => (
+                        <SelectItem
+                          key={town.id}
+                          value={`${town.id}`}
+                          className="px-2 py-1"
+                        >
+                          {town.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
+              control={control}
+              name="townId"
+              rules={{ required: true }}
+            />
+            {errors.townId && (
+              <span className="text-sm font-bold text-[#cc66ff]">
+                Choisissez une ville{" "}
+              </span>
+            )}
+          </>
+        )}
+
+        {currentStep === 2 && (
+          <>
+            <input
+              placeholder="Adresse"
+              {...register("address", { required: true })}
+              className="w-full rounded-full px-4 py-2 text-black"
+            />
+            {errors.address && (
+              <span className="text-sm font-bold text-[#cc66ff]">
+                Renseignez l adresse de la boite à livres
+              </span>
+            )}
+            <input
+              placeholder="Emplacement exact"
+              {...register("geographicCoordinates", { required: true })}
+              className="w-full rounded-full px-4 py-2 text-black"
+            />
+            {errors.geographicCoordinates && (
+              <span className="text-sm font-bold text-[#cc66ff]">
+                Renseignez les coordonnées de la boite à livres
+              </span>
+            )}
+          </>
+        )}
+
+        {currentStep === 3 && (
+          <>
+            <input hidden {...register("qrCode")} />
+            <span>PREVIEW</span>
+            <button
+              type="submit"
+              className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
+              disabled={createLibrairy.isLoading}
+            >
+              {createLibrairy.isLoading ? "Enregistrement..." : "Enregistrer"}
+            </button>
+          </>
+        )}
+
+        {currentStep === 4 && (
+          <>
+            <span className="text-center">
+              La boite à livre à bien été enregistrée !
+            </span>
+            <span className="text-center">
+              Ici joli QR code à télécharger ou à recevoir par mail
+            </span>
+          </>
+        )}
+      </form>
+
+      {/* Navigation */}
+      <div className="mt-8 pt-5">
+        {currentStep < steps.length - 1 && (
+          <div className="flex justify-between">
+            <button
+              type="button"
+              onClick={prev}
+              disabled={currentStep === 0}
+              className="rounded-full bg-white/10 px-3 py-3 font-semibold transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              disabled={currentStep === steps.length - 2}
+              className="rounded-full  bg-white/10 px-3 py-3 font-semibold transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
