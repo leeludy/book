@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { motion } from "framer-motion";
 
 import { api } from "~/trpc/react";
 
@@ -56,7 +57,9 @@ const steps = [
 
 export function Createlibrairy() {
   const router = useRouter();
+  const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
+  const delta = currentStep - previousStep;
 
   const townsList = api.town.getAll.useInfiniteQuery(
     {
@@ -102,11 +105,13 @@ export function Createlibrairy() {
     if (!output) return;
 
     if (currentStep < steps.length - 1) {
+      setPreviousStep(currentStep);
       setCurrentStep((step) => step + 1);
     }
   };
   const prev = () => {
     if (currentStep > 0) {
+      setPreviousStep(currentStep);
       setCurrentStep((step) => step - 1);
     }
   };
@@ -115,7 +120,7 @@ export function Createlibrairy() {
     <section className="mt-3 flex flex-col justify-between">
       {/* steps */}
       <nav aria-label="Progress">
-        <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
+        <ol role="list" className="space-y-4 md:flex md:space-x-4 md:space-y-0">
           {steps.map((step, index) => (
             <li key={step.name} className="md:flex-1">
               {currentStep > index ? (
@@ -123,24 +128,30 @@ export function Createlibrairy() {
                   <span className="text-sm font-medium text-[#cc66ff] transition-colors ">
                     {step.id}
                   </span>
-                  <span className="text-sm font-medium">{step.name}</span>
+                  <span className=" whitespace-nowrap text-sm font-medium">
+                    {step.name}
+                  </span>
                 </div>
               ) : currentStep === index ? (
                 <div
                   className="flex w-full flex-col border-l-4 border-[#cc66ff] py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
                   aria-current="step"
                 >
-                  <span className="text-sm font-medium text-[#cc66ff]">
+                  <span className="whitespace-nowrap text-sm font-medium text-[#cc66ff]">
                     {step.id}
                   </span>
-                  <span className="text-sm font-medium">{step.name}</span>
+                  <span className=" whitespace-nowrap text-sm font-medium">
+                    {step.name}
+                  </span>
                 </div>
               ) : (
                 <div className="group flex w-full flex-col border-l-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                  <span className="text-sm font-medium text-gray-500 transition-colors">
+                  <span className=" whitespace-nowrap text-sm font-medium text-gray-500 transition-colors">
                     {step.id}
                   </span>
-                  <span className="text-sm font-medium">{step.name}</span>
+                  <span className="whitespace-nowrap text-sm font-medium">
+                    {step.name}
+                  </span>
                 </div>
               )}
             </li>
@@ -149,12 +160,14 @@ export function Createlibrairy() {
       </nav>
 
       {/* Form */}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="mt-12 flex flex-col gap-2"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-12 flex flex-col">
         {currentStep === 0 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="flex flex-col gap-2"
+          >
             <input
               placeholder="Nom"
               {...register("name", { required: true })}
@@ -170,13 +183,18 @@ export function Createlibrairy() {
               id="picture"
               placeholder="Photo"
               {...register("picture")}
-              className="w-full rounded-full px-4 py-2 text-black"
+              className=" w-full rounded-full px-4 py-2 text-black"
             />
-          </>
+          </motion.div>
         )}
 
         {currentStep === 1 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="flex flex-col gap-2"
+          >
             <Controller
               render={({ field }) => (
                 <>
@@ -213,15 +231,20 @@ export function Createlibrairy() {
                 Choisissez une ville{" "}
               </span>
             )}
-          </>
+          </motion.div>
         )}
 
         {currentStep === 2 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className=" flex flex-col gap-5"
+          >
             <input
               placeholder="Adresse"
               {...register("address", { required: true })}
-              className="w-full rounded-full px-4 py-2 text-black"
+              className=" w-full rounded-full px-4 py-2 text-black"
             />
             {errors.address && (
               <span className="text-sm font-bold text-[#cc66ff]">
@@ -231,18 +254,23 @@ export function Createlibrairy() {
             <input
               placeholder="Emplacement exact"
               {...register("geographicCoordinates", { required: true })}
-              className="w-full rounded-full px-4 py-2 text-black"
+              className="mt-2 w-full rounded-full px-4 py-2 text-black"
             />
             {errors.geographicCoordinates && (
               <span className="text-sm font-bold text-[#cc66ff]">
                 Renseignez les coordonnées de la boite à livres
               </span>
             )}
-          </>
+          </motion.div>
         )}
 
         {currentStep === 3 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="flex flex-col gap-4"
+          >
             <input hidden {...register("qrCode")} />
             <span>PREVIEW</span>
             <button
@@ -252,7 +280,7 @@ export function Createlibrairy() {
             >
               {createLibrairy.isLoading ? "Enregistrement..." : "Enregistrer"}
             </button>
-          </>
+          </motion.div>
         )}
 
         {currentStep === 4 && (
