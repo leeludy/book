@@ -11,12 +11,12 @@ datasource db {
 }
 
 model Town {
-    id         Int        @id @default(autoincrement())
-    name       String
-    Librairies Librairy[]
+    id        Int       @id @default(autoincrement())
+    name      String
+    Libraries Library[]
 }
 
-model Librairy {
+model Library {
     id                    Int             @id @default(autoincrement())
     qrCode                String
     name                  String
@@ -33,29 +33,29 @@ model Librairy {
 }
 
 model Book {
-    id                Int             @id @default(autoincrement())
-    qrCode            String
-    title             String
-    author            String
-    cover             String?
-    resume            String          @db.Char(800)
-    createdAt         DateTime        @default(now())
-    currentLibrairy   Librairy        @relation(fields: [currentLibrairyId], references: [id])
-    currentLibrairyId Int
-    steps             TravelSegment[]
+    id               Int             @id @default(autoincrement())
+    qrCode           String
+    title            String
+    author           String
+    cover            String?
+    resume           String          @db.Char(800)
+    createdAt        DateTime        @default(now())
+    currentLibrary   Library         @relation(fields: [currentLibraryId], references: [id])
+    currentLibraryId Int
+    steps            TravelSegment[]
 
     @@index([title])
 }
 
 model TravelSegment {
-    id         Int      @id @default(autoincrement())
-    book       Book     @relation(fields: [bookId], references: [id])
-    bookId     Int
-    librairy   Librairy @relation(fields: [librairyId], references: [id])
-    librairyId Int
-    createdAt  DateTime @default(now())
-    reader     String
-    details    String
+    id        Int      @id @default(autoincrement())
+    book      Book     @relation(fields: [bookId], references: [id])
+    bookId    Int
+    library   Library  @relation(fields: [libraryId], references: [id])
+    libraryId Int
+    createdAt DateTime @default(now())
+    reader    String
+    details   String
 }
 
 // exemple

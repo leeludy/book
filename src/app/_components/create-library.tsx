@@ -57,7 +57,7 @@ export function CreateLibrary() {
     },
   )
 
-  const createLibrairy = api.librairy.create.useMutation({
+  const createLibrary = api.library.create.useMutation({
     onSuccess: async () => {
       await next()
       router.refresh()
@@ -80,7 +80,7 @@ export function CreateLibrary() {
 
     console.log("form data", data)
 
-    return createLibrairy.mutate({ townId, ...data })
+    return createLibrary.mutate({ townId, ...data })
   }
 
   const next = async () => {
@@ -201,9 +201,9 @@ export function CreateLibrary() {
             <button
               type="submit"
               className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-              disabled={createLibrairy.isLoading}
+              disabled={createLibrary.isLoading}
             >
-              {createLibrairy.isLoading ? "Enregistrement..." : "Enregistrer"}
+              {createLibrary.isLoading ? "Enregistrement..." : "Enregistrer"}
             </button>
           </Stepper.Step>
 

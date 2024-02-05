@@ -19,7 +19,7 @@ export const bookRouter = createTRPCRouter({
         resume: z.string().max(1200),
         cover: z.string().nullish(),
         qrCode: z.string(),
-        currentLibrairyId: z.number(),
+        currentLibraryId: z.number(),
       }),
     )
     .mutation(({ ctx, input }) => {
@@ -30,7 +30,7 @@ export const bookRouter = createTRPCRouter({
           resume: input.resume,
           cover: input.cover,
           qrCode: input.qrCode,
-          currentLibrairyId: input.currentLibrairyId,
+          currentLibraryId: input.currentLibraryId,
         },
       });
     }),

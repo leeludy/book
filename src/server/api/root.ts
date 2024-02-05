@@ -1,8 +1,8 @@
-import { bookRouter } from "~/server/api/routers/book";
-import { postRouter } from "~/server/api/routers/expl";
-import { createTRPCRouter } from "~/server/api/trpc";
-import { librairyRouter } from "./routers/librairy";
-import { townRouter } from "./routers/town";
+import { bookRouter } from "~/server/api/routers/book"
+import { postRouter } from "~/server/api/routers/expl"
+import { createTRPCRouter } from "~/server/api/trpc"
+import { townRouter } from "./routers/town"
+import { libraryRouter } from "./routers/library"
 
 /**
  * This is the primary router for your server.
@@ -11,10 +11,10 @@ import { townRouter } from "./routers/town";
  */
 export const appRouter = createTRPCRouter({
   book: bookRouter,
-  librairy: librairyRouter,
+  library: libraryRouter,
   town: townRouter,
   post: postRouter,
-});
+})
 
 // export type definition of API
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter

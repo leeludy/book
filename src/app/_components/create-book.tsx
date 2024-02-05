@@ -12,7 +12,7 @@ type Inputs = {
   author: string;
   resume: string;
   qrCode: string;
-  currentLibrairyId: number;
+  currentLibraryId: number;
 };
 
 type FieldNames = keyof Inputs;
@@ -22,7 +22,7 @@ const defaultValues = {
   author: "",
   resume: "",
   qrCode: "",
-  currentLibrairyId: 17, // 17 = initial state > Book at home
+  currentLibraryId: 17, // 17 = initial state > Book at home
 };
 
 const steps = [
@@ -61,12 +61,12 @@ export function CreateBook() {
     defaultValues,
   });
 
-  const onSubmit: SubmitHandler<Inputs> = ({ currentLibrairyId, ...data }) => {
-    currentLibrairyId = Number(currentLibrairyId);
+  const onSubmit: SubmitHandler<Inputs> = ({ currentLibraryId, ...data }) => {
+    currentLibraryId = Number(currentLibraryId);
 
     console.log("form data", data);
 
-    return createBook.mutate({ currentLibrairyId, ...data });
+    return createBook.mutate({ currentLibraryId, ...data });
   };
 
   const createBook = api.book.create.useMutation({
