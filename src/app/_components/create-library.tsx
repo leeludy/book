@@ -97,23 +97,27 @@ export function CreateLibrary() {
       <form onSubmit={handleSubmit(onSubmit)} className="mt-12 flex flex-col">
         <Stepper active={currentStep} onStepClick={(index) => setCurrentStep(index)}>
           <Stepper.Step title="Etape 1" description="Nom">
-            <input
-              placeholder="Nom"
-              {...register("name", { required: true })}
-              className="w-full rounded-full px-4 py-2 text-black"
-            />
-            {errors.name && (
-              <span className="text-sm font-bold text-[#cc66ff]">
-                Entrez un nom pour la boite à livres
-              </span>
-            )}
-            <Label htmlFor="picture">Voulez vous ajouter une photo ?</Label>
-            <input
-              id="picture"
-              placeholder="Photo"
-              {...register("picture")}
-              className=" w-full rounded-full px-4 py-2 text-black"
-            />
+            <div className="mt-4 flex flex-col gap-2">
+              <input
+                placeholder="Nom"
+                {...register("name", { required: true })}
+                className=" w-full rounded-full px-4 py-2 text-black"
+              />
+              {errors.name && (
+                <span className="text-sm font-bold text-[#cc66ff]">
+                  Entrez un nom pour la boite à livres
+                </span>
+              )}
+            </div>
+            <div className="mt-4 flex flex-col gap-2">
+              <Label htmlFor="picture">Voulez vous ajouter une photo ?</Label>
+              <input
+                id="picture"
+                placeholder="Photo"
+                {...register("picture")}
+                className="  w-full rounded-full px-4 py-2 text-black"
+              />
+            </div>
           </Stepper.Step>
 
           <Stepper.Step title="Etape 2" description="Ville">
@@ -128,21 +132,23 @@ export function CreateLibrary() {
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-[200px] justify-between",
-                        !field.value && "text-muted-foreground",
+                        "mt-4 flex w-full justify-between rounded-full pl-5 text-base text-black",
+                        !field.value && "text-neutral-400 ",
                       )}
                     >
                       {field.value
                         ? townsList.data?.pages[0]?.items.find((town) => town.id === field.value)
                             ?.name
                         : "Choisissez une ville"}
-                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <CaretSortIcon className="ml-2 h-5 w-5  text-black" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
+                  <PopoverContent className="w-full p-2">
                     <Command>
-                      <CommandInput placeholder="Ville" className="h-9" />
-                      <CommandEmpty>Aucune ville correspondante</CommandEmpty>
+                      <CommandInput placeholder="Ville" className="ml-2 h-9 px-1" />
+                      <CommandEmpty className="h-7 p-2 text-base">
+                        Aucune ville correspondante
+                      </CommandEmpty>
                       <CommandGroup>
                         {townsList.data?.pages[0]?.items.map((town) => (
                           <CommandItem
@@ -151,8 +157,9 @@ export function CreateLibrary() {
                             onSelect={() => {
                               setValue("townId", town.id), setOpen(false)
                             }}
+                            className="h-7 text-base"
                           >
-                            {town.name}
+                            {town.name.replace(/^./, town.name.charAt(0).toUpperCase())}
                             <CheckIcon
                               className={cn(
                                 "ml-auto h-4 w-4",
@@ -173,26 +180,30 @@ export function CreateLibrary() {
           </Stepper.Step>
 
           <Stepper.Step title="Etape 3" description="Adresse">
-            <input
-              placeholder="Adresse"
-              {...register("address", { required: true })}
-              className=" w-full rounded-full px-4 py-2 text-black"
-            />
-            {errors.address && (
-              <span className="text-sm font-bold text-[#cc66ff]">
-                Renseignez l adresse de la boite à livres
-              </span>
-            )}
-            <input
-              placeholder="Emplacement exact"
-              {...register("geographicCoordinates", { required: true })}
-              className="mt-2 w-full rounded-full px-4 py-2 text-black"
-            />
-            {errors.geographicCoordinates && (
-              <span className="text-sm font-bold text-[#cc66ff]">
-                Renseignez les coordonnées de la boite à livres
-              </span>
-            )}
+            <div className="mt-4 flex flex-col gap-2">
+              <input
+                placeholder="Adresse"
+                {...register("address", { required: true })}
+                className=" w-full rounded-full px-4 py-2 text-black"
+              />
+              {errors.address && (
+                <span className="text-sm font-bold text-[#cc66ff]">
+                  Renseignez l adresse de la boite à livres
+                </span>
+              )}
+            </div>
+            <div className="mt-4 flex flex-col gap-2">
+              <input
+                placeholder="Emplacement exact"
+                {...register("geographicCoordinates", { required: true })}
+                className="mt-2 w-full rounded-full px-4 py-2 text-black"
+              />
+              {errors.geographicCoordinates && (
+                <span className="text-sm font-bold text-[#cc66ff]">
+                  Renseignez les coordonnées de la boite à livres
+                </span>
+              )}
+            </div>
           </Stepper.Step>
 
           <Stepper.Step title="Etape 4" description="Validation">
